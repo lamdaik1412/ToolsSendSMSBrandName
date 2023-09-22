@@ -1,4 +1,7 @@
+Nodejs/node_modules
+Nodejs/logs
+Nodejs/.env
+Nodejs/.implementationProcess
+Nodejs/package-lock.json
 /node_modules
-/logs
-.env
 package-lock.json

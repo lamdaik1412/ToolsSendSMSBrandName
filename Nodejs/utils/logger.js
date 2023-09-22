@@ -18,7 +18,7 @@ let logger = createLogger({
     transports: [
         new (transports.DailyRotateFile)({
             filename: 'logs/tool-sms-%DATE%.log',
-            datePattern: 'YYYY-MM-DD-hh-mm',
+            datePattern: 'YYYY-MM-DD',
             zippedArchive: true,
             maxSize: '20m',
         }),

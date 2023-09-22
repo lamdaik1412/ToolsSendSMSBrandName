@@ -1,0 +1,51 @@
+{
+    "name": "Gửi SMS His-VNPT Vĩnh Long",
+    "version": "1.0",
+    "description": "Hỗ trợ lên lịch, gửi tin nhắc hẹn tái khám.",
+    "manifest_version": 3,
+    "icons": {
+        "16": "img/icon16.png",
+        "48": "img/icon48.png",
+        "128": "img/icon128.png"
+    },
+    "permissions": [
+        "tabs",
+        "contextMenus",
+        "storage",
+        "activeTab",
+        "scripting",
+        "notifications"
+    ],
+    "host_permissions": [
+        "https://apibatso.vnptvinhlong.vn/"
+    ],
+    "background": {
+        "service_worker": "js/background.js"
+    },
+    "action": {
+        "default_icon": {
+            "16": "img/icon16.png",
+            "48": "img/icon48.png",
+            "128": "img/icon128.png"
+        },
+        "default_title": "Tool hỗ trợ gửi tin nhắn SMS hẹn tái khám",
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://yte-vinhlong.vnpthis.vn/web_his/khambenhngoaitru"
+            ],
+            "css": [
+                "css/myStyle.css"
+            ],
+            "js": [
+                "js/libs/jquery.js",
+                "js/libs/notify.js",
+                "js/content.js"
+            ]
+
+        }
+    ],
+    "options_page": "options.html"
+}

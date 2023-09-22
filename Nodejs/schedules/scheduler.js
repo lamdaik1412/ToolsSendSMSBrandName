@@ -6,6 +6,32 @@ const { default: axios } = require('axios')
 
 const scheduledJobs = {}
 
+async function reloadJob(jobToCancel) {
+    console.log(scheduledJobs['86019']);
+    if (scheduledJobs[jobToCancel]) {
+        scheduledJobs[jobToCancel].cancel();
+        delete scheduledJobs[jobToCancel]; // Remove the canceled job from the data structure
+        logger.info(`Huỷ job có name: ${jobToCancel}`)
+        const thoiDiemGuiArray = await SMS_LayDanhSach_ThoiDiemGui_TheoDonVi()
+        thoiDiemGuiArray.forEach(async (thoiDiem) => {
+            if (`${thoiDiem.id_donvi}` == jobToCancel) {
+                const [gio, phut] = thoiDiem.thoidiemgui.split(':')
+                addScheduler(jobToCancel,gio,phut)
+            }
+        })
+    } else {
+        console.log(`Không tìm thấy job có name: ${jobToCancel}`);
+    }
+}
+
+async function addScheduler(idDonVi, gio, phut) {
+    scheduledJobs[idDonVi] = schedule.scheduleJob(`${idDonVi}`, { hour: parseInt(gio), minute: parseInt(phut) }, async () => {
+        logger.info(`Gửi SMS vào thời điểm đã đặt: (${gio}:${phut}, ${idDonVi})`)
+        await GuiTinNhan(thoiDiem.id_donvi)
+    })
+    logger.info(`Đặt lịch gửi: (${gio}:${phut}, ${idDonVi})`)
+}
+
 async function setupScheduler() {
     const thoiDiemGuiArray = await SMS_LayDanhSach_ThoiDiemGui_TheoDonVi()
     if (thoiDiemGuiArray) {
@@ -13,13 +39,9 @@ async function setupScheduler() {
             scheduledJobs[key].cancel()
             logger.info(`Huỷ job có name: ${scheduledJobs[key].name}`)
         }
-        thoiDiemGuiArray.forEach(async (thoiDiem, index) => {
+        thoiDiemGuiArray.forEach(async (thoiDiem) => {
             const [gio, phut] = thoiDiem.thoidiemgui.split(':')
-            scheduledJobs[index] = schedule.scheduleJob({ hour: parseInt(gio), minute: parseInt(phut) }, async () => {
-                logger.info(`Gửi SMS vào thời điểm đã đặt: (${thoiDiem.thoidiemgui}, ${thoiDiem.id_donvi})`)
-                //await GuiTinNhan(thoiDiem.id_donvi)
-            })
-            logger.info(`Đặt lịch gửi: (${thoiDiem.thoidiemgui}, ${thoiDiem.id_donvi})`)
+            addScheduler(thoiDiem.id_donvi, gio, phut)
         })
     }
 }
@@ -107,4 +129,4 @@ schedule.scheduleJob(process.env.SCHEDULE_86147, () => {
 })
 
 // Xuất hàm setupScheduler để sử dụng trong app.js
-module.exports = { setupScheduler, getDanhSachHenTaiKham_86147 }
+module.exports = { setupScheduler, getDanhSachHenTaiKham_86147, reloadJob }

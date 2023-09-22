@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/notify.css" rel="stylesheet">
+    <script src="js/libs/jquery.js"></script>
+    <script src="js/libs/socket.io.js"></script>
+    <script src="js/libs/bootstrap.min.js"></script>
+    <script src="js/libs/notify.js"></script>
+    <style>
+        body {
+            width: 500px;
+            height: 400px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 7px !important;
+        }
+
+        .bg-vnpt {
+            background-color: #01458E !important;
+            color: white;
+        }
+
+        .text-vnpt {
+            color: #013463 !important;
+        }
+
+        ::placeholder {
+            color: #013463b2 !important;
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid p-4 bg-vnpt">
+        <div class="row">
+            <div class="col-2 text-center">
+                <img src="img/icon128.png" alt="Logo" style="height: 70px;">
+            </div>
+            <div class="col-10 text-center">
+                <div style="vertical-align: middle; align-content: center;">
+                    <h1>Gửi SMS hẹn tái khám</h1>
+                    <h5>Đơn vị TTYT Mang Thít (86019)</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="background">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active text-vnpt" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
+                    type="button" role="tab" aria-controls="home" aria-selected="true"><strong>Cấu hình tham số gửi tin
+                        nhắn</strong></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-vnpt" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile"
+                    type="button" role="tab" aria-controls="profile" aria-selected="false"><strong>Đổi
+                        password</strong></button>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" style="padding-left: 10%; padding-right: 10%;" id="home"
+                role="tabpanel" aria-labelledby="home-tab">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <label for="time" class="text-vnpt">Thời điểm muốn gửi trong ngày </label>
+                            <input type="time" name="time" id="time" class="form-control text-vnpt"
+                                placeholder="Nhập thời gian muốn gửi">
+                        </div>
+                        <div class="row">
+                            <label for="number" class="text-vnpt">Gửi trước bao nhiêu ngày (chỉ nhập số)</label>
+                            <input type="number" name="number" id="number" class="form-control text-vnpt"
+                                placeholder="Nhập số ngày muốn gửi trước ngày hẹn">
+                        </div>
+                    </div>
+                    <button type="button" class="btn bg-vnpt mt-4" style="width: 50%; margin: 0 auto" id="btnSave">Lưu
+                        thay
+                        đổi</button>
+                </div>
+            </div>
+            <div class="tab-pane fade" style="padding-left: 10%; padding-right: 10%;" id="profile" role="tabpanel"
+                aria-labelledby="profile-tab">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <label for="oldPassword" class="text-vnpt">Password hiện tại </label>
+                            <input type="password" name="oldPassword" id="oldPassword" class="form-control text-vnpt"
+                                placeholder="Nhập password hiện tại">
+                        </div>
+                        <div class="row">
+                            <label for="newPassword" class="text-vnpt">Password mới</label>
+                            <input type="password" name="newPassword" id="newPassword" class="form-control text-vnpt"
+                                placeholder="Nhập password mới">
+                        </div>
+                    </div>
+                    <button type="button" class="btn bg-vnpt mt-4" style="width: 50%; margin: 0 auto"
+                        id="btnSavePassword">Đổi mật khẩu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalConfirmSave" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="exampleModalLabel">Xác nhận cập nhật cấu hình?</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="password" class="">Xác nhận bạn có đủ quyền cập nhật cấu hình</label>
+                        <input type="password" name="password" id="password" class="form-control"
+                            placeholder="Nhập password" required="required">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btnClose">Đóng</button>
+                    <button type="button" class="btn bg-vnpt btnConfirm">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/popup.js"></script>
+</body>
+
+</html>
