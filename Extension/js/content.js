@@ -1,5 +1,5 @@
-const API = 'https://apibatso.vnptvinhlong.vn/api/SMS_Brandname/'
-const ID = 86019
+const API_URL = 'https://apibatso.vnptvinhlong.vn/api/SMS_Brandname/'
+const UNIT_ID = 86019
 
 const InitButton = () => {
     let btnSave = ` <input name="saveSMS" type="button" id="saveSMS" value="Gửi tin nhắn" class="button_shadow height_1" style="width:120px"> `;
@@ -8,15 +8,15 @@ const InitButton = () => {
 
 $(document).ready(function () {
     InitButton()
-    
+
     $(document).on("click", "#saveSMS", function () {
-        let thongTinBenhNhan = GetThongTinBenhNhan();
-        Save(thongTinBenhNhan)
+        let patientInfo = getPatientInfo();
+        save(patientInfo)
     })
 
-    function GetThongTinBenhNhan() {
-        let thongTinBenhNhan = {
-            id_donvi: `${ID}`,
+    function getPatientInfo() {
+        let patientInfo = {
+            id_donvi: `${UNIT_ID}`,
             hoten: $("#hoten").val(),
             myt: $("#mayte").val(),
             bhyt: $("#bhyt").val(),
@@ -24,28 +24,25 @@ $(document).ready(function () {
             ngayhen: $("#ngayhen").val(),
             sdt: $("#sdt_benhnhan").val()
         }
-        return thongTinBenhNhan
+        return patientInfo
     }
 
-
-
-
-    function Save(thongTinBenhNhan) {
-        if (thongTinBenhNhan.hoten == '' || thongTinBenhNhan.hoten == null || thongTinBenhNhan.hoten == undefined) {
+    function save(patientInfo) {
+        if (patientInfo.hoten === '' || patientInfo.hoten === null || patientInfo.hoten === undefined) {
             alert("Vui lòng kiểm tra lại tên bệnh nhân")
             return
-        } else if (thongTinBenhNhan.sdt == '' || thongTinBenhNhan.sdt == null || thongTinBenhNhan.sdt == undefined || thongTinBenhNhan.sdt.length < 10) {
+        } else if (patientInfo.sdt === '' || patientInfo.sdt === null || patientInfo.sdt === undefined || patientInfo.sdt.length < 10) {
             alert("Bệnh nhân không có số điện thoại hợp lệ.")
             return
-        } else if (thongTinBenhNhan.ngayhen == '' || thongTinBenhNhan.ngayhen == null || thongTinBenhNhan.ngayhen == undefined || thongTinBenhNhan.ngayhen.length != 10) {
+        } else if (patientInfo.ngayhen === '' || patientInfo.ngayhen === null || patientInfo.ngayhen === undefined || patientInfo.ngayhen.length != 10) {
             alert("Vui lòng kiểm tra lại ngày hẹn")
             return
         } else {
             $.ajax({
-                url: API + 'LuuLichGui',
+                url: API_URL + 'LuuLichGui',
                 type: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify(thongTinBenhNhan),
+                data: JSON.stringify(patientInfo),
                 success: function (response) {
                     console.log(response);
                 },
@@ -55,5 +52,4 @@ $(document).ready(function () {
             });
         }
     }
-
 })

@@ -1,19 +1,21 @@
 const sql = require('mssql');
-const logger = require('../utils/logger')
-require('dotenv').config();
+const logger = require('../utils/logger');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const config = {
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
-    server: process.env.DB_HOST, // Địa chỉ server SQL Server (ví dụ: 'localhost' hoặc '127.0.0.1')
-    database: process.env.DB_NAME, // Tên cơ sở dữ liệu
-    port: parseInt(process.env.DB_PORT), // Cổng mặc định của SQL Server
+    server: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    port: parseInt(process.env.DB_PORT),
     options: {
-        encrypt: false, // Nếu bạn sử dụng kết nối qua SSL, đặt giá trị này thành true
+        encrypt: false,
     },
 };
 
-async function connectToDatabase() {
+const connectToDatabase = async () => {
     try {
         await sql.connect(config);
         logger.info('Kết nối thành công đến SQL Server');
@@ -22,12 +24,13 @@ async function connectToDatabase() {
         logger.error('Lỗi khi kết nối đến SQL Server:', err);
         return false;
     }
-}
+};
 
-process.on('SIGINT', () => {
+const closeDatabaseConnection = () => {
     sql.close();
     logger.info('Đã đóng kết nối đến SQL Server');
-    process.exit();
-});
+};
+
+process.on('SIGINT', closeDatabaseConnection);
 
 module.exports = { connectToDatabase, sql };

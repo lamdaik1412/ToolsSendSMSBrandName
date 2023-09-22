@@ -1,142 +1,124 @@
-const API = 'https://apibatso.vnptvinhlong.vn/api/SMS_Brandname/'
-const ID = 86019
-const socket = io.connect('http://localhost:3000');
-let DEFAULT_CURRENT_CONFIG = {
-    thoidiemgui: '07:00',
-    songayguitruoc: 1
-}
-let NEW_CONFIG = {
-    id_donvi: `${ID}`
-}
+const API_URL = 'https://apibatso.vnptvinhlong.vn/api/SMS_Brandname/'
+const UNIT_ID = 86019
+const socket = io.connect('http://localhost:3000')
+const DEFAULT_CONFIG = { thoidiemgui: '07:00', songayguitruoc: 1 }
+const NEW_CONFIG = { id_donvi: `${UNIT_ID}` }
+
 const loadConfig = () => {
     $.ajax({
-        url: API + 'SMSLayThongTinCauHinh',
+        url: API_URL + 'SMSLayThongTinCauHinh',
         type: 'GET',
-        data: {
-            donvi: '86019'
-        },
+        data: { donvi: '86019' },
         success: function (response) {
-            if (response.length >= 0) {
-                let config = response[0]
-                $("#time").val(config.thoidiemgui)
-                $("#number").val(config.songayguitruoc)
-                console.log("Server config loaded")
-            } else {
-                $("#time").val(DEFAULT_CURRENT_CONFIG.thoidiemgui)
-                $("#number").val(DEFAULT_CURRENT_CONFIG.songayguitruoc)
-                console.log("Default config loaded")
-            }
+            const config = response.length >= 0 ? response[0] : DEFAULT_CONFIG
+            $("#time").val(config.thoidiemgui)
+            $("#number").val(config.songayguitruoc)
+            console.log("Config loaded from server")
         },
-        error: function (xhr, status, error) {
-            $("#time").val(DEFAULT_CURRENT_CONFIG.thoidiemgui)
-            $("#number").val(DEFAULT_CURRENT_CONFIG.songayguitruoc)
+        error: function () {
+            $("#time").val(DEFAULT_CONFIG.thoidiemgui)
+            $("#number").val(DEFAULT_CONFIG.songayguitruoc)
         }
-    });
+    })
 }
+
 const resetInput = () => {
     $("#password").val(null)
 }
 
 $(document).ready(function () {
     loadConfig()
-    //#region Event click
-    //CHỈNH THỜI GIAN
+
     $(document).on("click", "#btnSave", function () {
         NEW_CONFIG.thoidiemgui = $("#time").val()
         NEW_CONFIG.songayguitruoc = $("#number").val()
-        if (NEW_CONFIG.thoidiemgui == '' || NEW_CONFIG.thoidiemgui == null || NEW_CONFIG.thoidiemgui == undefined) {
-            $.notify("Vui lòng nhập thời điểm", "error")
-            return
-        }
-        else if (NEW_CONFIG.songayguitruoc == '' || NEW_CONFIG.songayguitruoc == null || NEW_CONFIG.songayguitruoc == undefined) {
-            $.notify("Vui lòng nhập số ngày", "error")
+        const thoidiemgui = NEW_CONFIG.thoidiemgui
+        const songayguitruoc = NEW_CONFIG.songayguitruoc
+
+        if (!thoidiemgui || !songayguitruoc) {
+            $.notify("Vui lòng nhập thời điểm và số ngày", "error")
             return
         }
 
         $("#modalConfirmSave").modal('show')
-        setTimeout(function () {
-            $("#password").focus()
-        }, 500)
+        setTimeout(() => $("#password").focus(), 500)
     })
 
-    //ĐÓNG MODAL NHẬP MẬT KHẨU
     $(document).on("click", ".btnClose", function () {
         $("#modalConfirmSave").modal('hide')
     })
 
-    //ĐỔI MẬT KHẨU
     $(document).on("click", "#btnSavePassword", function () {
-        let password = {
-            id_donvi: `${ID}`,
-            password: $("#oldPassword").val(),
-            password_new: $("#newPassword").val()
-        }
-        if (password.password != password.password_new) {
-            //đổi mật khẩu
-            if (password.password_new == '' || password.password_new == null || password.password_new == undefined) {
-                $.notify("Vui lòng nhập mật khẩu.", "error")
-                return
-            } else if (password.password_new.length < 8) {
-                $.notify("Vui lòng nhập mật khẩu có độ dài từ 8 ký tự.", "error")
-                return
-            } else {
-                $.ajax({
-                    url: API + 'DoiMatKhau',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(password),
-                    success: function (response) {
-                        if (response.length == 0) {
-                            $.notify("Đổi mật khẩu không thành công, kiểm tra lại mật khẩu cũ!", 'error')
-                        } else if (response.length > 0) {
-                            $.notify("Đổi mật khẩu thành công!", 'success')
-                            $("#oldPassword").val(null)
-                            $("#newPassword").val(null)
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error:', error);
-                    }
-                });
-            }
-        } else {
-            $.notify("Mật khẩu mới không được trùng với mật khẩu cũ.", "error")
+        const oldPassword = $("#oldPassword").val()
+        const newPassword = $("#newPassword").val()
+
+        if (oldPassword === newPassword) {
+            $.notify("Mật khẩu mới không được trùng với mật khẩu cũ", "error")
             return
         }
+
+        if (!newPassword || newPassword.length < 8) {
+            $.notify("Vui lòng nhập mật khẩu có độ dài từ 8 ký tự", "error")
+            return
+        }
+
+        const passwordData = {
+            id_donvi: `${UNIT_ID}`,
+            password: oldPassword,
+            password_new: newPassword
+        }
+
+        $.ajax({
+            url: API_URL + 'DoiMatKhau',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(passwordData),
+            success: function (response) {
+                if (response.length === 0) {
+                    $.notify("Đổi mật khẩu không thành công, kiểm tra lại mật khẩu cũ!", 'error')
+                } else {
+                    $.notify("Đổi mật khẩu thành công!", 'success')
+                    $("#oldPassword").val(null)
+                    $("#newPassword").val(null)
+                }
+            },
+            error: function () {
+                console.error('Error during password change')
+            }
+        })
     })
 
-    //XÁC NHẬN CẬP NHẬT THỜI GIAN
     $(document).on("click", ".btnConfirm", function () {
         NEW_CONFIG.password = $("#password").val()
-        if (NEW_CONFIG.password == '' || NEW_CONFIG.password == null || NEW_CONFIG.password == undefined) {
+
+        if (!NEW_CONFIG.password) {
             $.notify("Vui lòng nhập mật khẩu", "error")
             $("#password").focus()
             return
-        } else {
-            let jsonData = JSON.stringify(NEW_CONFIG)
-            $.ajax({
-                url: API + 'LuuThongTinCauHinh',
-                type: 'POST',
-                contentType: 'application/json',
-                data: jsonData,
-
-                success: function (response) {
-                    if (response.length > 0) {
-                        $.notify("Cập nhật thành công!", "success")
-                        socket.emit('reloadJob', { message: 'Khách hàng cấu hình thời điểm gửi tin nhắn', id: 86019 });
-                        loadConfig();
-                    } else {
-                        $.notify("Cập nhật không thành công, vui lòng kiểm tra lại mật khẩu", "error")
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error:', error);
-                }
-            });
-            resetInput()
-            $("#modalConfirmSave").modal('hide')
         }
 
+        const jsonData = JSON.stringify(NEW_CONFIG)
+
+        $.ajax({
+            url: API_URL + 'LuuThongTinCauHinh',
+            type: 'POST',
+            contentType: 'application/json',
+            data: jsonData,
+            success: function (response) {
+                if (response.length > 0) {
+                    $.notify("Cập nhật thành công!", "success")
+                    socket.emit('cancelAndRescheduleJob', { message: 'Khách hàng cấu hình thời điểm gửi tin nhắn', id: 86019 })
+                    loadConfig()
+                } else {
+                    $.notify("Cập nhật không thành công, vui lòng kiểm tra lại mật khẩu", "error")
+                }
+            },
+            error: function () {
+                console.error('Error during configuration update')
+            }
+        })
+
+        resetInput()
+        $("#modalConfirmSave").modal('hide')
     })
-    //#endregion
 })
