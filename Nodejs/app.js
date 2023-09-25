@@ -9,6 +9,7 @@ async function connectAndSetup() {
         logger.info("Khởi chạy setupScheduler");
         await getAppointmentList();
         await setupScheduler();
+        SendSMSMessages(86019)
     }
 }
 

@@ -101,12 +101,16 @@ async function getAppointmentList() {
                         sdt: benhNhan.SO_DIEN_THOAI
                     };
                     try {
-                        const response = await axios.post(process.env.API_VNPT_SMS + 'LuuLichGui', patientInfo , {
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                        });
-                        console.log(response.data);
+                        if (patientInfo.sdt.trim() != "") {
+                            const response = await axios.post(process.env.API_VNPT_SMS + 'LuuLichGui', patientInfo, {
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                            });
+                            logger.info(`Đã thêm bệnh nhân ${response.data[0].hoten} (MYT: ${response.data[0].myt}) vào danh sách gửi tin nhắn.`)
+                        } else {
+                            logger.error(`Bệnh nhân ${patientInfo.hoten} (MYT: ${patientInfo.myt}) không có số điện thoại.`);
+                        }
                     } catch (error) {
                         console.error('Error:', error.response.data);
                     }
