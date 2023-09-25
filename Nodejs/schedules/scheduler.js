@@ -9,7 +9,7 @@ const scheduledJobs = {};
 async function scheduleMessageSending(idDonVi, hour, minute) {
     scheduledJobs[idDonVi] = schedule.scheduleJob(`${idDonVi}`, { hour: parseInt(hour), minute: parseInt(minute) }, async () => {
         logger.info(`Gửi SMS vào thời điểm đã đặt: (${hour}:${minute}, ${idDonVi})`);
-        //await SendSMSMessages(idDonVi);
+        await SendSMSMessages(idDonVi);
     });
     logger.info(`Đặt lịch gửi: (${hour}:${minute}, ${idDonVi})`);
 }
@@ -53,7 +53,7 @@ async function setupScheduler() {
     }
 }
 
-
+// for 86147
 async function getAppointmentList() {
     const unitID = 86147
     const config = await SMS_LayThongTin_CauHinh(unitID);

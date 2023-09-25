@@ -30,7 +30,7 @@ const SMS_LayDanhSach_ThoiDiemGui_TheoDonVi = async () => {
 };
 
 const SMS_LayDanhSach_LichGui = async (idDonVi) => {
-    return await executeStoredProcedure('SMS_LayDanhSach_LichGui', { idDonVi: { type: sql.Int, value: idDonVi } });
+    return await executeStoredProcedure('SMS_LayDanhSach_LichGui', { id_donvi: { type: sql.Int, value: idDonVi } });
 };
 
 const SMS_Luu_Log = async (idDonVi, xml, noiDung, sdt, myt, ketQua, id) => {

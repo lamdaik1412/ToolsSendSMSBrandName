@@ -8,7 +8,9 @@ const logger = require('./utils/logger');
 
 const app = express();
 app.use(cors());
-
+app.get('/', (req, res) => {
+    res.send('Hello, World!');
+});
 const server = http.createServer(app);
 const io = socketIo(server, { cors: { origin: "*" } });
 io.on("connection", (socket) => {
@@ -23,4 +25,4 @@ io.on("connection", (socket) => {
 server.listen(process.env.PORT, () => {
     logger.info(`Server is running on port ${process.env.PORT}`);
     startApp();
-}); 
+});  

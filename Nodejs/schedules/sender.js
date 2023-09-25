@@ -37,7 +37,7 @@ function buildXmlRequest(config) {
 async function sendSMS(patient, unitID) {
     try {
         const xml = buildXmlRequest(patient);
-        const response = await axios.post(API_SMS, xml, { 'Content-Type': 'application/xml' });
+        /*const response = await axios.post(API_SMS, xml, { 'Content-Type': 'application/xml' });
         const responseData = response.data;
 
         logger.info(`Response data ${patient.hoten}: ${responseData}`);
@@ -48,6 +48,7 @@ async function sendSMS(patient, unitID) {
         const errorDescription = xmlDoc.getElementsByTagName('ERROR_DESC')[0].textContent;
 
         await SMS_Luu_Log(`${unitID}`, xml, errorDescription, patient.sdt, patient.myt, `${errorCode}`, patient.id);
+        */
     } catch (error) {
         await SMS_Luu_Log(`${unitID}`, xml, error, patient.sdt, patient.myt, '', patient.id);
     }
