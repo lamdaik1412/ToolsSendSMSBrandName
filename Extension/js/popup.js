@@ -1,6 +1,6 @@
 const API_URL = 'https://apibatso.vnptvinhlong.vn/api/SMS_Brandname/'
 const UNIT_ID = 86019
-const socket = io.connect('http://localhost:3000')
+const socket = io.connect('http://10.91.13.115:8823')
 const DEFAULT_CONFIG = { thoidiemgui: '07:00', songayguitruoc: 1 }
 const NEW_CONFIG = { id_donvi: `${UNIT_ID}` }
 
@@ -89,6 +89,17 @@ $(document).ready(function () {
     })
 
     $(document).on("click", ".btnConfirm", function () {
+        save()
+    })
+
+    // Bắt sự kiện nhấn phím Enter trong trường có id="password"
+    $("#password").keydown(function (e) {
+        if (e.which === 13) { // Kiểm tra phím Enter
+            save()
+        }
+    });
+
+    function save() {
         NEW_CONFIG.password = $("#password").val()
 
         if (!NEW_CONFIG.password) {
@@ -120,5 +131,5 @@ $(document).ready(function () {
 
         resetInput()
         $("#modalConfirmSave").modal('hide')
-    })
+    }
 })
