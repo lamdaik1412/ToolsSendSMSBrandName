@@ -42,17 +42,17 @@ function buildXmlRequest(config) {
 async function sendSMS(patient, unitID) {
     try {
         const xml = buildXmlRequest(patient);
-        // const response = await axios.post(API_SMS, xml, { 'Content-Type': 'application/xml' });
-        // const responseData = response.data;
+        const response = await axios.post(API_SMS, xml, { 'Content-Type': 'application/xml' });
+        const responseData = response.data;
 
-        // logger.info(`Response data ${patient.hoten}: ${responseData}`);
+        logger.info(`Response data ${patient.hoten}: ${responseData}`);
 
-        // const parser = new DOMParser();
-        // const xmlDoc = parser.parseFromString(responseData, 'text/xml');
-        // const errorCode = xmlDoc.getElementsByTagName('ERROR')[0].textContent;
-        // const errorDescription = xmlDoc.getElementsByTagName('ERROR_DESC')[0].textContent;
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(responseData, 'text/xml');
+        const errorCode = xmlDoc.getElementsByTagName('ERROR')[0].textContent;
+        const errorDescription = xmlDoc.getElementsByTagName('ERROR_DESC')[0].textContent;
 
-        // await SMS_Luu_Log(`${unitID}`, xml, errorDescription, patient.sdt, patient.myt, `${errorCode}`, patient.id);
+        await SMS_Luu_Log(`${unitID}`, xml, errorDescription, patient.sdt, patient.myt, `${errorCode}`, patient.id);
         
     } catch (error) {
         await SMS_Luu_Log(`${unitID}`, xml, error, patient.sdt, patient.myt, '', patient.id);

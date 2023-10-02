@@ -1,7 +1,7 @@
 const API_URL = 'https://apibatso.vnptvinhlong.vn/api/SMS_Brandname/'
 const UNIT_ID = 86019
-const socket = io.connect('http://localhost:8823')
-//const socket = io.connect('http://10.91.13.115:8823')
+//const socket = io.connect('http://localhost:8823')
+const socket = io.connect('http://113.161.196.10:8823/')
 const DEFAULT_CONFIG = { thoidiemgui: '07:00', songayguitruoc: 1 }
 const NEW_CONFIG = { id_donvi: `${UNIT_ID}` }
 

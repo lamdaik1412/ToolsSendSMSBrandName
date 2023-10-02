@@ -16,6 +16,7 @@ async function scheduleMessageSending(idDonVi, hour, minute) {
 
 async function cancelAndRescheduleJob(jobName) {
     if (scheduledJobs[jobName]) {
+        logger.info(`Tìm thấy công việc có tên: ${jobName}`);
         const canceledJob = scheduledJobs[jobName];
         canceledJob.cancel();
         delete scheduledJobs[jobName]
@@ -29,7 +30,15 @@ async function cancelAndRescheduleJob(jobName) {
             }
         });
     } else {
-        console.log(`Không tìm thấy công việc có tên: ${jobName}`);
+        logger.error(`Không tìm thấy công việc có tên: ${jobName}`);
+        logger.info(`Khởi tạo công việc có tên: ${jobName}`);
+        const thoiDiemGuiArray = await SMS_LayDanhSach_ThoiDiemGui_TheoDonVi();
+        thoiDiemGuiArray.forEach(async (thoiDiem) => {
+            if (thoiDiem.id_donvi == jobName) {
+                const [gio, phut] = thoiDiem.thoidiemgui.split(':');
+                scheduleMessageSending(jobName, gio, phut);
+            }
+        });
     }
 }
 
@@ -39,8 +48,8 @@ async function setupScheduler() {
 
         // Huỷ tất cả các công việc đã lên lịch
         Object.values(scheduledJobs).forEach((job) => {
-            job.cancel();
             logger.info(`Huỷ công việc có tên: ${job.name}`);
+            job.cancel();
         });
 
         // Đặt lịch lại các công việc dựa trên danh sách thời điểm
@@ -88,7 +97,7 @@ async function getAppointmentList() {
 
             const appointmentList = appointmentResponse.data;
             if (appointmentList.length === 0) {
-                logger.info(`Danh sách bệnh nhân có ngày hẹn ${searchDate} trống`);
+                logger.info(`Danh sách bệnh nhân của đơn vị ${unitID} có ngày hẹn ${searchDate} trống`);
             } else {
                 appointmentList.forEach(async benhNhan => {
                     const patientInfo  = {
