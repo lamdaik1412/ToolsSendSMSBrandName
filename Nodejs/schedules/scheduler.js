@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const { SMS_LayDanhSach_ThoiDiemGui_TheoDonVi, SMS_LayThongTin_CauHinh } = require('../data/storedProcedure');
+const { SMS_LayDanhSach_ThoiDiemGui_TheoDonVi, SMS_LayThongTin_CauHinh, SMS_DonViLayDanhSachTuHis } = require('../data/storedProcedure');
 const { SendSMSMessages } = require('./sender');
 const logger = require('../utils/logger');
 const axios = require('axios');
@@ -64,73 +64,78 @@ async function setupScheduler() {
 
 // for 86147
 async function getAppointmentList() {
-    const unitID = 86147
-    const config = await SMS_LayThongTin_CauHinh(unitID);
-    const daysBeforeSend = config.songayguitruoc ?? 1;
-    const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() + daysBeforeSend);
-    const searchDate = currentDate.toLocaleDateString('en-GB');
-    const formData = new FormData();
-    formData.append('tendn', process.env.HIS_USERNAME);
-    formData.append('matkhau', process.env.HIS_PASSWORD);
+    const listUnitID = await SMS_DonViLayDanhSachTuHis();
+    listUnitID.forEach(async (row) => {
+        const unitID = row.id_donvi
+        const config = await SMS_LayThongTin_CauHinh(unitID);
+        const daysBeforeSend = config.songayguitruoc ?? 1;
+        const currentDate = new Date();
+        currentDate.setDate(currentDate.getDate() + daysBeforeSend);
+        const searchDate = currentDate.toLocaleDateString('en-GB');
+        const formData = new FormData();
+        formData.append('tendn', process.env.HIS_USERNAME);
+        formData.append('matkhau', process.env.HIS_PASSWORD);
 
-    try {
-        const loginResponse = await axios.post(process.env.HIS_API_LOGIN, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        });
-
-        if (loginResponse.data === 'SUCCESS') {
-            const cookies = loginResponse.headers['set-cookie'];
-            const cookieHeader = cookies.join('; ');
-            const queryParams = {
-                hentaikhamtungay: searchDate,
-                hentaikhamdenngay: searchDate,
-                _search: false,
-                dvtt: unitID
-            };
-
-            const appointmentResponse = await axios.get(process.env.HIS_API_GET_LICH_HEN + new URLSearchParams(queryParams), {
-                headers: {
-                    Cookie: cookieHeader,
-                },
+        try {
+            const loginResponse = await axios.post(process.env.HIS_API_LOGIN, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
             });
 
-            const appointmentList = appointmentResponse.data;
-            if (appointmentList.length === 0) {
-                logger.info(`Danh sách bệnh nhân của đơn vị ${unitID} có ngày hẹn ${searchDate} trống`);
-            } else {
-                appointmentList.forEach(async benhNhan => {
-                    const patientInfo  = {
-                        id_donvi: `${unitID}`,
-                        hoten: benhNhan.TEN_BENH_NHAN,
-                        myt: `${benhNhan.MA_BENH_NHAN}`,
-                        bhyt: benhNhan.SO_THE_BHYT,
-                        diachi: benhNhan.DIA_CHI,
-                        ngayhen: benhNhan.NGAY_HEN,
-                        sdt: benhNhan.SO_DIEN_THOAI
-                    };
-                    try {
-                        if (patientInfo.sdt.trim() != "") {
-                            const response = await axios.post(process.env.API_VNPT_SMS + 'LuuLichGui', patientInfo, {
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                            });
-                            logger.info(`Đã thêm bệnh nhân ${response.data[0].hoten} (MYT: ${response.data[0].myt}) vào danh sách gửi tin nhắn.`)
-                        } else {
-                            logger.error(`Bệnh nhân ${patientInfo.hoten} (MYT: ${patientInfo.myt}) không có số điện thoại.`);
-                        }
-                    } catch (error) {
-                        console.error('Error:', error.response.data);
-                    }
+            if (loginResponse.data === 'SUCCESS') {
+                const cookies = loginResponse.headers['set-cookie'];
+                const cookieHeader = cookies.join('; ');
+                const queryParams = {
+                    hentaikhamtungay: searchDate,
+                    hentaikhamdenngay: searchDate,
+                    _search: false,
+                    dvtt: unitID
+                };
+
+                const appointmentResponse = await axios.get(process.env.HIS_API_GET_LICH_HEN + new URLSearchParams(queryParams), {
+                    headers: {
+                        Cookie: cookieHeader,
+                    },
                 });
+
+                const appointmentList = appointmentResponse.data;
+                if (appointmentList.length === 0) {
+                    logger.info(`Danh sách bệnh nhân của đơn vị ${unitID} có ngày hẹn ${searchDate} trống`);
+                } else {
+                    appointmentList.forEach(async benhNhan => {
+                        const patientInfo = {
+                            id_donvi: `${unitID}`,
+                            hoten: benhNhan.TEN_BENH_NHAN,
+                            myt: `${benhNhan.MA_BENH_NHAN}`,
+                            bhyt: benhNhan.SO_THE_BHYT,
+                            diachi: benhNhan.DIA_CHI,
+                            ngayhen: benhNhan.NGAY_HEN,
+                            sdt: benhNhan.SO_DIEN_THOAI
+                        };
+                        try {
+                            if (patientInfo.sdt.trim() != "") {
+                                const response = await axios.post(process.env.API_VNPT_SMS + 'LuuLichGui', patientInfo, {
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                });
+                                logger.info(`Đã thêm bệnh nhân ${response.data[0].hoten} (MYT: ${response.data[0].myt}) vào danh sách gửi tin nhắn.`)
+                            } else {
+                                logger.error(`Bệnh nhân ${patientInfo.hoten} (MYT: ${patientInfo.myt}) không có số điện thoại.`);
+                            }
+                        } catch (error) {
+                            console.error('Error:', error.response.data);
+                        }
+                    });
+                }
+            } else {
+                logger.error('Lỗi khi đăng nhập: ' + loginResponse.data);
             }
-        } else {
-            logger.error('Lỗi khi đăng nhập: ' + loginResponse.data);
+        } catch (error) {
+            logger.error('Lỗi khi đăng nhập: ' + error.response.statusText);
         }
-    } catch (error) {
-        logger.error('Lỗi khi đăng nhập: ' + error.response.statusText);
-    }
+    })
+
+    
 }
 
 schedule.scheduleJob(process.env.SCHEDULE_RELOAD_LIST, () => {

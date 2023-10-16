@@ -51,9 +51,9 @@ async function sendSMS(patient, unitID) {
         const xmlDoc = parser.parseFromString(responseData, 'text/xml');
         const errorCode = xmlDoc.getElementsByTagName('ERROR')[0].textContent;
         const errorDescription = xmlDoc.getElementsByTagName('ERROR_DESC')[0].textContent;
-
+ 
         await SMS_Luu_Log(`${unitID}`, xml, errorDescription, patient.sdt, patient.myt, `${errorCode}`, patient.id);
-        
+
     } catch (error) {
         await SMS_Luu_Log(`${unitID}`, xml, error, patient.sdt, patient.myt, '', patient.id);
     }

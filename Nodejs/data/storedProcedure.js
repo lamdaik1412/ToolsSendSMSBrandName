@@ -50,4 +50,8 @@ const SMS_LayThongTin_CauHinh = async (idDonVi) => {
     return await executeStoredProcedure('SMS_LayThongTin_CauHinh', { id_donvi: { type: sql.Int, value: idDonVi } });
 };
 
-module.exports = { SMS_LayDanhSach_ThoiDiemGui_TheoDonVi, SMS_LayDanhSach_LichGui, SMS_Luu_Log, SMS_LayThongTin_CauHinh };
+const SMS_DonViLayDanhSachTuHis = async () => {
+    return await executeStoredProcedure('SMS_DonViLayDanhSachTuHis')
+}
+
+module.exports = { SMS_LayDanhSach_ThoiDiemGui_TheoDonVi, SMS_LayDanhSach_LichGui, SMS_Luu_Log, SMS_LayThongTin_CauHinh, SMS_DonViLayDanhSachTuHis };
